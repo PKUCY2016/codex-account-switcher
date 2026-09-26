@@ -36,14 +36,14 @@ try {
   else await installWindows(artifact, target);
 } finally { await rm(temporary, { recursive: true, force: true }); }
 assert.match(invoke('update'), /Updated Codex Account Switcher/);
-const latest = await latestRelease(repository, asset);
+const latest = await latestRelease(repository);
 if (platform === 'darwin') {
   const actual = run('/usr/bin/plutil', ['-extract', 'CFBundleShortVersionString', 'raw', '-o', '-', path.join(target, 'Contents', 'Info.plist')]);
   assert.equal(actual, latest.version);
   run('/usr/bin/codesign', ['--verify', '--deep', '--strict', target]);
 } else {
   assert.equal(await fileHash(target), await releaseChecksum(latest.downloadBase, asset));
-  const script = "$link = Join-Path ([Environment]::GetFolderPath('Programs')) 'Codex Account Switcher.lnk'; (New-Object -ComObject WScript.Shell).CreateShortcut($link).TargetPath";
+  const script = "[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); Add-Type -Path ./npm/lib/windows-shortcut.cs; $link = Join-Path ([Environment]::GetFolderPath('Programs')) 'Codex Account Switcher.lnk'; [SwitcherShortcut]::Read($link)";
   const actual = run('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]);
   assert.equal(actual.toLowerCase(), target.toLowerCase());
 }

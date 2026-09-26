@@ -4,6 +4,7 @@ import { createReadStream, createWriteStream } from "node:fs";
 import { copyFile, lstat, mkdir, mkdtemp, readdir, rename, rm, rmdir } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
@@ -45,7 +46,7 @@ async function responseFor(url, fetchImpl, options = {}) {
   return response;
 }
 
-export async function latestRelease(repository, asset, fetchImpl = fetch) {
+export async function latestRelease(repository, fetchImpl = fetch) {
   const response = await responseFor(`${repository}/releases/latest`, fetchImpl, { method: "HEAD" });
   const tagPrefix = `${repository}/releases/tag/`;
   const tag = response.url.startsWith(tagPrefix) ? response.url.slice(tagPrefix.length) : "";
@@ -130,19 +131,14 @@ export function configureLauncher(platform, target, remove = false) {
   if (platform === "darwin") return run(launchServices, [remove ? "-u" : "-f", target]);
   return powershell(`
     $link = Join-Path ([Environment]::GetFolderPath('Programs')) 'Codex Account Switcher.lnk';
-    $shell = New-Object -ComObject WScript.Shell;
+    Add-Type -Path $env:CODEX_SWITCHER_SHORTCUT_SOURCE;
     if ($env:CODEX_SWITCHER_REMOVE -eq 'true') {
-      if ((Test-Path -LiteralPath $link) -and $shell.CreateShortcut($link).TargetPath -eq $env:CODEX_SWITCHER_TARGET) { Remove-Item -LiteralPath $link }
+      if ((Test-Path -LiteralPath $link) -and [SwitcherShortcut]::Read($link) -eq $env:CODEX_SWITCHER_TARGET) { Remove-Item -LiteralPath $link }
     } else {
-      Write-Output ('Creating shortcut to: ' + $env:CODEX_SWITCHER_TARGET);
       if (!(Test-Path -LiteralPath $env:CODEX_SWITCHER_TARGET)) { throw 'Shortcut target does not exist' }
-      $shortcut = $shell.CreateShortcut($link);
-      $shortcut.TargetPath = $env:CODEX_SWITCHER_TARGET;
-      $shortcut.WorkingDirectory = Split-Path -Parent $env:CODEX_SWITCHER_TARGET;
-      $shortcut.IconLocation = $env:CODEX_SWITCHER_TARGET + ',0';
-      $shortcut.Save();
+      [SwitcherShortcut]::Write($env:CODEX_SWITCHER_TARGET, $link);
     }
-  `, { CODEX_SWITCHER_TARGET: target, CODEX_SWITCHER_REMOVE: String(remove) });
+  `, { CODEX_SWITCHER_TARGET: target, CODEX_SWITCHER_REMOVE: String(remove), CODEX_SWITCHER_SHORTCUT_SOURCE: fileURLToPath(new URL("./windows-shortcut.cs", import.meta.url)) });
 }
 
 function checkMacApp(app, runCommand) {
@@ -202,7 +198,7 @@ export async function installWindows(executable, target) {
 
 export async function installApp({ repository, directory, log = console.log }) {
   const { platform, asset, target } = await installTarget({ directory });
-  const { version, downloadBase } = await latestRelease(repository, asset);
+  const { version, downloadBase } = await latestRelease(repository);
   log(`GitHub latest: v${version}`);
   const checksum = await releaseChecksum(downloadBase, asset);
   const existing = await installedVersion(platform, target);

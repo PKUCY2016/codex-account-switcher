@@ -35,7 +35,7 @@ jobs:
         run: node --test scripts/tests/npm-*.test.mjs
       - name: Pack npm installer
         run: npm pack ./npm --ignore-scripts
-      - name: Diagnose Windows Shell Unicode targets
+      - name: Check Windows Shell Unicode targets
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
@@ -44,10 +44,10 @@ jobs:
           New-Item -ItemType Directory -Path $folder -Force | Out-Null
           $exe = Join-Path $folder 'Codex Account Switcher.exe'
           Copy-Item "$env:WINDIR\System32\notepad.exe" $exe
-          $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $folder 'test.lnk'))
-          Write-Host "Target: $exe"
-          $shortcut.TargetPath = $exe
-          $shortcut.Save()
+          Add-Type -Path ./npm/lib/windows-shortcut.cs
+          $link = Join-Path $folder 'test.lnk'
+          [SwitcherShortcut]::Write($exe, $link)
+          if ([SwitcherShortcut]::Read($link) -ne $exe) { throw 'Unicode shortcut target differs' }
       - name: Install global tarball through postinstall
         env:
           CODEX_ACCOUNT_SWITCHER_INSTALL_DIR: ${{ runner.temp }}/npm-installer/应用 smoke

@@ -23,9 +23,9 @@ test("latest is resolved on every invocation without changing the npm version", 
     assert.equal(url, `${repository}/releases/latest`);
     return release;
   };
-  const first = await latestRelease(repository, asset, fetchImpl);
+  const first = await latestRelease(repository, fetchImpl);
   release = fixture("0.1.17");
-  const next = await latestRelease(repository, asset, fetchImpl);
+  const next = await latestRelease(repository, fetchImpl);
   assert.equal(first.version, "0.1.16");
   assert.equal(next.version, "0.1.17");
   assert.equal(first.downloadBase, `${repository}/releases/download/v0.1.16`);
@@ -34,9 +34,9 @@ test("latest is resolved on every invocation without changing the npm version", 
 
 test("unresolved, prerelease, foreign and HTTP-error releases fail explicitly", async () => {
   for (const url of [repository + '/releases/latest', repository + '/releases/tag/v0.1.16-beta.1', 'https://example.com/releases/tag/v0.1.16']) {
-    await assert.rejects(latestRelease(repository, asset, async () => ({ ok: true, url })), /latest/);
+    await assert.rejects(latestRelease(repository, async () => ({ ok: true, url })), /latest/);
   }
-  await assert.rejects(latestRelease(repository, asset, async () => new Response("rate limited", { status: 403 })), /HTTP 403/);
+  await assert.rejects(latestRelease(repository, async () => new Response("rate limited", { status: 403 })), /HTTP 403/);
 });
 
 test("checksums and downloads use the same resolved version and reject corruption", async (t) => {
