@@ -34,10 +34,10 @@ export async function installTarget({ platform = process.platform, arch = proces
   throw new Error(`Unsupported system: ${platform}/${arch} (${release}). Requires macOS 14+ with ARM64 Node.js, or Windows 10/11 with x64 Node.js.`);
 }
 
-async function responseFor(url, fetchImpl) {
+async function responseFor(url, fetchImpl, options = {}) {
   let response;
   try {
-    response = await fetchImpl(url, { signal: AbortSignal.timeout(120_000), headers: { "User-Agent": "codex-account-switcher-installer" } });
+    response = await fetchImpl(url, { signal: AbortSignal.timeout(120_000), headers: { "User-Agent": "codex-account-switcher-installer" }, ...options });
   } catch (error) {
     throw new Error(`Request failed for ${url}: ${error.cause?.message ?? error.message}`);
   }
@@ -46,19 +46,12 @@ async function responseFor(url, fetchImpl) {
 }
 
 export async function latestRelease(repository, asset, fetchImpl = fetch) {
-  const api = `${repository.replace("https://github.com/", "https://api.github.com/repos/")}/releases/latest`;
-  const release = await (await responseFor(api, fetchImpl)).json();
-  if (release.draft || release.prerelease || !/^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(release.tag_name)) {
-    throw new Error("GitHub latest must be a published, stable v<major>.<minor>.<patch> release.");
-  }
+  const response = await responseFor(`${repository}/releases/latest`, fetchImpl, { method: "HEAD" });
+  const tagPrefix = `${repository}/releases/tag/`;
+  const tag = response.url.startsWith(tagPrefix) ? response.url.slice(tagPrefix.length) : "";
+  if (!/^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(tag)) throw new Error(`GitHub latest did not resolve to an official stable version: ${response.url}`);
   // Resolve latest once, then pin both downloads to that tag to avoid mixed releases.
-  const downloadBase = `${repository}/releases/download/${release.tag_name}`;
-  for (const name of [asset, `${asset}.sha256`]) {
-    if (!release.assets?.some((item) => item.name === name && item.state === "uploaded" && item.browser_download_url === `${downloadBase}/${name}`)) {
-      throw new Error(`GitHub latest (${release.tag_name}) is missing the official asset ${name}.`);
-    }
-  }
-  return { version: release.tag_name.slice(1), downloadBase };
+  return { version: tag.slice(1), downloadBase: `${repository}/releases/download/${tag}` };
 }
 
 export async function releaseChecksum(downloadBase, asset, fetchImpl = fetch) {
@@ -88,7 +81,7 @@ export async function downloadVerified(downloadBase, asset, destination, checksu
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, { encoding: "utf8", windowsHide: true, ...options });
   if (result.error) throw result.error;
-  if (result.status !== 0) throw new Error(`${command} failed (status ${result.status}, signal ${result.signal}): ${result.stderr.trim() || result.stdout.trim()}`);
+  if (result.status !== 0) throw new Error(`${command} failed (status ${result.status}, signal ${result.signal}): ${result.stderr.trim()}\n${result.stdout.trim()}`);
   return result.stdout.trim();
 }
 
@@ -100,7 +93,7 @@ function appVersion(app, runCommand) {
 }
 
 function powershell(script, variables = {}) {
-  return run("powershell.exe", ["-NoProfile", "-NonInteractive", "-EncodedCommand", Buffer.from(`$ErrorActionPreference = 'Stop'; ${script}`, "utf16le").toString("base64")], { env: { ...process.env, ...variables } });
+  return run("powershell.exe", ["-NoProfile", "-NonInteractive", "-OutputFormat", "Text", "-EncodedCommand", Buffer.from(`$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'; [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); ${script}`, "utf16le").toString("base64")], { env: { ...process.env, ...variables } });
 }
 
 async function installedVersion(platform, target) {
@@ -141,6 +134,8 @@ export function configureLauncher(platform, target, remove = false) {
     if ($env:CODEX_SWITCHER_REMOVE -eq 'true') {
       if ((Test-Path -LiteralPath $link) -and $shell.CreateShortcut($link).TargetPath -eq $env:CODEX_SWITCHER_TARGET) { Remove-Item -LiteralPath $link }
     } else {
+      Write-Output ('Creating shortcut to: ' + $env:CODEX_SWITCHER_TARGET);
+      if (!(Test-Path -LiteralPath $env:CODEX_SWITCHER_TARGET)) { throw 'Shortcut target does not exist' }
       $shortcut = $shell.CreateShortcut($link);
       $shortcut.TargetPath = $env:CODEX_SWITCHER_TARGET;
       $shortcut.WorkingDirectory = Split-Path -Parent $env:CODEX_SWITCHER_TARGET;

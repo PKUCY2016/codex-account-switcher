@@ -35,6 +35,19 @@ jobs:
         run: node --test scripts/tests/npm-*.test.mjs
       - name: Pack npm installer
         run: npm pack ./npm --ignore-scripts
+      - name: Diagnose Windows Shell Unicode targets
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $folder = Join-Path $env:RUNNER_TEMP 'npm-installer-shell-应用 smoke'
+          New-Item -ItemType Directory -Path $folder -Force | Out-Null
+          $exe = Join-Path $folder 'Codex Account Switcher.exe'
+          Copy-Item "$env:WINDIR\System32\notepad.exe" $exe
+          $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $folder 'test.lnk'))
+          Write-Host "Target: $exe"
+          $shortcut.TargetPath = $exe
+          $shortcut.Save()
       - name: Install global tarball through postinstall
         env:
           CODEX_ACCOUNT_SWITCHER_INSTALL_DIR: ${{ runner.temp }}/npm-installer/应用 smoke

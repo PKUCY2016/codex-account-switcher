@@ -10,9 +10,7 @@ import { assets, compareVersions, downloadVerified, installMac, installTarget, i
 const repository = "https://github.com/liuzhao1225/codex-account-switcher";
 const asset = assets.windows;
 const digest = (value) => createHash("sha256").update(value).digest("hex");
-const fixture = (version) => ({ tag_name: `v${version}`, draft: false, prerelease: false,
-  assets: [asset, `${asset}.sha256`].map((name) => ({ name, state: "uploaded", browser_download_url: `${repository}/releases/download/v${version}/${name}` })),
-});
+const fixture = (version) => ({ ok: true, url: `${repository}/releases/tag/v${version}` });
 const temporary = async (t) => {
   const dir = await mkdtemp(path.join(os.tmpdir(), "npm-switcher-test-"));
   t.after(() => rm(dir, { recursive: true, force: true }));
@@ -22,8 +20,8 @@ const temporary = async (t) => {
 test("latest is resolved on every invocation without changing the npm version", async () => {
   let release = fixture("0.1.16");
   const fetchImpl = async (url) => {
-    assert.equal(url, `${repository.replace("github.com", "api.github.com/repos")}/releases/latest`);
-    return Response.json(release);
+    assert.equal(url, `${repository}/releases/latest`);
+    return release;
   };
   const first = await latestRelease(repository, asset, fetchImpl);
   release = fixture("0.1.17");
@@ -34,13 +32,10 @@ test("latest is resolved on every invocation without changing the npm version", 
   assert.equal(next.downloadBase, `${repository}/releases/download/v0.1.17`);
 });
 
-test("incomplete, prerelease, foreign-asset and HTTP-error releases fail explicitly", async () => {
-  for (const data of [
-    { ...fixture("0.1.16"), assets: [] },
-    { ...fixture("0.1.16"), prerelease: true },
-    { ...fixture("0.1.16"), tag_name: "untrusted" },
-    { ...fixture("0.1.16"), assets: fixture("0.1.16").assets.map((a) => ({ ...a, browser_download_url: `https://example.com/${a.name}` })) },
-  ]) await assert.rejects(latestRelease(repository, asset, async () => Response.json(data)), /latest/);
+test("unresolved, prerelease, foreign and HTTP-error releases fail explicitly", async () => {
+  for (const url of [repository + '/releases/latest', repository + '/releases/tag/v0.1.16-beta.1', 'https://example.com/releases/tag/v0.1.16']) {
+    await assert.rejects(latestRelease(repository, asset, async () => ({ ok: true, url })), /latest/);
+  }
   await assert.rejects(latestRelease(repository, asset, async () => new Response("rate limited", { status: 403 })), /HTTP 403/);
 });
 
