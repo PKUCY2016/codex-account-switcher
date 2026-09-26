@@ -75,24 +75,26 @@ macOS 使用菜单栏界面，应用与 DMG 均已签名并通过 Apple 公证�
 
 启动后，通过浏览器添加账号，再选择并确认切换。两端都需要可用的 Codex 运行时，与 Codex Desktop 使用同一个活动 Codex 目录。
 
-### 可选 npm 下载助手
+### 通过 npm 安装
 
-本项目提供 [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher) 下载助手，需要 Node.js 18+。直接运行：
-
-```sh
-npx @liuzhao1225/codex-account-switcher
-```
-
-也可以全局安装助手：
+需要 Node.js 18+，macOS 使用 ARM64 Node.js，Windows 使用 x64 Node.js：
 
 ```sh
 npm install -g @liuzhao1225/codex-account-switcher
-codex-account-switcher-download
+codex-account-switcher open
 ```
 
-命令会输出 macOS 与 Windows 的官方下载链接。加上 `--open` 可打开发布页，`--json` 可输出结构化链接。npm 安装的是下载助手；账号管理功能需要安装 DMG 或 EXE 后使用。
+全局安装会从 **GitHub latest** 下载对应桌面应用，验证 SHA-256，安装到用户目录并配置启动入口。npm 需要允许执行安装脚本；添加 `--foreground-scripts` 可查看安装过程。macOS 默认安装到 `~/Applications`；Windows 安装到 `%LOCALAPPDATA%\Programs\Codex Account Switcher` 并创建开始菜单快捷方式。
 
-**版本号独立维护**：npm `0.1.0` 对应下载助手，原生应用版本以 [GitHub Releases](https://github.com/liuzhao1225/codex-account-switcher/releases/latest) 为准。助手始终指向最新原生应用发布页，`--version` 显示助手自身版本。
+无需全局安装 npm 包，也可以用一条命令安装或更新：
+
+```sh
+npx @liuzhao1225/codex-account-switcher@latest
+```
+
+使用 `codex-account-switcher update` 更新、`open` 启动、`uninstall` 卸载，卸载保留账号数据。更新前请退出应用。普通项目中的 `npm i` 仅安装命令行入口，需要运行 `install` 才部署桌面应用。可通过 `--dir <父目录>` 指定安装位置。
+
+**每次安装或更新都会重新读取 GitHub latest**。未来原生应用只需在 GitHub 发版，无需同步发布 npm 包。npm 安装器与应用版本独立；原来的 `codex-account-switcher-download` 下载入口继续可用。脚本权限、自定义目录和卸载行为详见[安装器说明](npm/README.md)。
 
 ## 功能
 

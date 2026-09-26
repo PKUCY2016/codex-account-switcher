@@ -1,0 +1,127 @@
+import assert from "node:assert/strict";
+import { cpSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+import { assets, compareVersions, downloadVerified, installMac, installTarget, installWindows, latestRelease, releaseChecksum } from "../../npm/lib/install.mjs";
+
+const repository = "https://github.com/liuzhao1225/codex-account-switcher";
+const asset = assets.windows;
+const digest = (value) => createHash("sha256").update(value).digest("hex");
+const fixture = (version) => ({ tag_name: `v${version}`, draft: false, prerelease: false,
+  assets: [asset, `${asset}.sha256`].map((name) => ({ name, state: "uploaded", browser_download_url: `${repository}/releases/download/v${version}/${name}` })),
+});
+const temporary = async (t) => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "npm-switcher-test-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  return dir;
+};
+
+test("latest is resolved on every invocation without changing the npm version", async () => {
+  let release = fixture("0.1.16");
+  const fetchImpl = async (url) => {
+    assert.equal(url, `${repository.replace("github.com", "api.github.com/repos")}/releases/latest`);
+    return Response.json(release);
+  };
+  const first = await latestRelease(repository, asset, fetchImpl);
+  release = fixture("0.1.17");
+  const next = await latestRelease(repository, asset, fetchImpl);
+  assert.equal(first.version, "0.1.16");
+  assert.equal(next.version, "0.1.17");
+  assert.equal(first.downloadBase, `${repository}/releases/download/v0.1.16`);
+  assert.equal(next.downloadBase, `${repository}/releases/download/v0.1.17`);
+});
+
+test("incomplete, prerelease, foreign-asset and HTTP-error releases fail explicitly", async () => {
+  for (const data of [
+    { ...fixture("0.1.16"), assets: [] },
+    { ...fixture("0.1.16"), prerelease: true },
+    { ...fixture("0.1.16"), tag_name: "untrusted" },
+    { ...fixture("0.1.16"), assets: fixture("0.1.16").assets.map((a) => ({ ...a, browser_download_url: `https://example.com/${a.name}` })) },
+  ]) await assert.rejects(latestRelease(repository, asset, async () => Response.json(data)), /latest/);
+  await assert.rejects(latestRelease(repository, asset, async () => new Response("rate limited", { status: 403 })), /HTTP 403/);
+});
+
+test("checksums and downloads use the same resolved version and reject corruption", async (t) => {
+  const dir = await temporary(t);
+  const base = `${repository}/releases/download/v0.1.16`;
+  const data = "native release bytes";
+  const urls = [];
+  const fetchImpl = async (url) => {
+    urls.push(url);
+    return new Response(url.endsWith(".sha256") ? `${digest(data)}  ${asset}\n` : data);
+  };
+  const checksum = await releaseChecksum(base, asset, fetchImpl);
+  await downloadVerified(base, asset, path.join(dir, "verified.exe"), checksum, fetchImpl);
+  assert.deepEqual(urls, [`${base}/${asset}.sha256`, `${base}/${asset}`]);
+  assert.equal(await readFile(path.join(dir, "verified.exe"), "utf8"), data);
+  await assert.rejects(downloadVerified(base, asset, path.join(dir, "corrupt.exe"), "0".repeat(64), fetchImpl), /SHA-256 mismatch/);
+  await assert.rejects(releaseChecksum(base, asset, async () => new Response(`${digest(data)} wrong.exe`)), /Invalid SHA-256/);
+});
+
+test("targets are user-level and unsupported platforms fail before downloading", async () => {
+  const home = path.resolve("test-home");
+  assert.equal((await installTarget({ platform: "darwin", arch: "arm64", release: "23.0.0", home })).target, path.join(home, "Applications", "Codex Account Switcher.app"));
+  assert.equal((await installTarget({ platform: "win32", arch: "x64", release: "10.0.0", localAppData: home })).target, path.join(home, "Programs", "Codex Account Switcher", "Codex Account Switcher.exe"));
+  for (const params of [{ platform: "linux", arch: "x64" }, { platform: "darwin", arch: "x64" }, { platform: "darwin", arch: "arm64", release: "22.0.0" }]) {
+    await assert.rejects(installTarget(params), /Unsupported system/);
+  }
+  assert.equal(compareVersions("0.1.16.0", "0.1.16"), 0);
+  assert.equal(compareVersions("0.2.0", "0.1.16"), 1);
+  assert.equal(compareVersions("0.1.9", "0.1.16"), -1);
+});
+
+test("Windows deployment replaces the EXE and leaves neighboring files intact", async (t) => {
+  const dir = await temporary(t);
+  const source = path.join(dir, "download.exe");
+  const target = path.join(dir, "application", "Codex Account Switcher.exe");
+  await writeFile(source, "v1");
+  await installWindows(source, target);
+  await writeFile(path.join(path.dirname(target), "keep.txt"), "user data");
+  await writeFile(source, "v2");
+  await installWindows(source, target);
+  assert.equal(await readFile(target, "utf8"), "v2");
+  assert.equal(await readFile(path.join(path.dirname(target), "keep.txt"), "utf8"), "user data");
+});
+
+test("macOS deployment removes obsolete app files, preserves neighbors, and blocks a running app", async (t) => {
+  const dir = await temporary(t);
+  const target = path.join(dir, "Applications", "Codex Account Switcher.app");
+  await mkdir(target, { recursive: true });
+  await writeFile(path.join(target, "old-resource"), "old");
+  await writeFile(path.join(path.dirname(target), "keep.txt"), "user data");
+  let running = true;
+  let detachCount = 0;
+  const fakeRun = (command, args) => {
+    if (command.endsWith("plutil")) return args[1] === "CFBundleIdentifier" ? "com.liuzhao.codex-account-switcher" : "0.1.16";
+    if (command.endsWith("ditto")) cpSync(args[0], args[1], { recursive: true });
+    if (command.endsWith("ps")) return running ? `${target}/Contents/MacOS/CodexAccountSwitcher` : "";
+    if (command.endsWith("hdiutil") && args[0] === "detach") detachCount++;
+    return "";
+  };
+  for (let pass = 0; pass < 2; pass++) {
+    const temp = path.join(dir, `download-${pass}`);
+    const source = path.join(temp, "mounted", "Codex Account Switcher.app");
+    await mkdir(temp);
+    const run = (command, args) => {
+      if (command.endsWith("hdiutil") && args[0] === "attach") {
+        mkdirSync(source, { recursive: true });
+        writeFileSync(path.join(source, "new-resource"), "new");
+      }
+      return fakeRun(command, args);
+    };
+    if (running) {
+      await assert.rejects(installMac("test.dmg", target, "0.1.16", temp, run), /Quit Codex/);
+      assert.equal(await readFile(path.join(target, "old-resource"), "utf8"), "old");
+      running = false;
+    } else {
+      await installMac("test.dmg", target, "0.1.16", temp, run);
+      await assert.rejects(readFile(path.join(target, "old-resource")), { code: "ENOENT" });
+      assert.equal(await readFile(path.join(target, "new-resource"), "utf8"), "new");
+      assert.equal(await readFile(path.join(path.dirname(target), "keep.txt"), "utf8"), "user data");
+    }
+  }
+  assert.equal(detachCount, 2);
+});

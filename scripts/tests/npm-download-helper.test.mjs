@@ -28,10 +28,15 @@ test("default invocation prints guidance and rejects unsupported commands", () =
   assert.match(unsupported.stderr, /Usage:/);
 });
 
-test("publishing the helper cannot run lifecycle hooks or pull dependencies", () => {
-  assert.equal(metadata.scripts, undefined);
+test("installer packages only its commands and library, with a global-install lifecycle entry", () => {
+  assert.deepEqual(metadata.scripts, { postinstall: "node bin/postinstall.mjs" });
   assert.equal(metadata.dependencies, undefined);
   assert.equal(metadata.optionalDependencies, undefined);
   assert.equal(metadata.publishConfig.access, "public");
-  assert.deepEqual(metadata.files, ["bin/"]);
+  assert.deepEqual(metadata.files, ["bin/", "lib/"]);
+  const result = spawnSync(process.execPath, [fileURLToPath(new URL("../../npm/bin/postinstall.mjs", import.meta.url))], {
+    encoding: "utf8", env: { ...process.env, npm_config_global: "false" },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Desktop installation: npx/);
 });

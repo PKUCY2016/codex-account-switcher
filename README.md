@@ -75,24 +75,26 @@ macOS uses the menu bar; the app and DMG are signed and Apple-notarized. Windows
 
 Launch the app, add accounts through browser sign-in, then select and confirm a switch. Both platforms need an available Codex runtime and must use the same active Codex home as Codex Desktop.
 
-### Optional npm download helper
+### Install with npm
 
-The project also provides [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher), a download-link helper requiring Node.js 18+. Run it once:
-
-```sh
-npx @liuzhao1225/codex-account-switcher
-```
-
-Or install the helper globally:
+Requires Node.js 18+ (ARM64 on macOS, x64 on Windows):
 
 ```sh
 npm install -g @liuzhao1225/codex-account-switcher
-codex-account-switcher-download
+codex-account-switcher open
 ```
 
-The command prints official macOS and Windows download links. Add `--open` to open the release page or `--json` for machine-readable links. Install the DMG or EXE to use account management; npm installs only this helper.
+Global installation downloads and installs the desktop app from **GitHub latest**, verifies SHA-256, and configures the application launcher. npm must allow lifecycle scripts; add `--foreground-scripts` to see installation progress. macOS installs to `~/Applications`; Windows installs to `%LOCALAPPDATA%\Programs\Codex Account Switcher` and adds a Start menu shortcut.
 
-**Versions are independent:** npm `0.1.0` identifies the helper. The native app's version comes from [GitHub Releases](https://github.com/liuzhao1225/codex-account-switcher/releases/latest). The helper always links to the latest native release, and `--version` reports its own version.
+For a one-command installation or update without a global npm package:
+
+```sh
+npx @liuzhao1225/codex-account-switcher@latest
+```
+
+Run `codex-account-switcher update` to update, `open` to launch, or `uninstall` to remove the app while keeping account data. Quit the app before updating. Local `npm i` installs only the CLI; run its `install` command to install the desktop app. `--dir <parent-directory>` selects a custom location.
+
+**Every install/update reads GitHub latest.** Future native releases do not require a new npm package. The npm installer version is independent of the app version. The original `codex-account-switcher-download` entry remains available for links. See the [installer guide](npm/README.md) for installation-script settings, custom directories and uninstall behavior.
 
 ## Features
 
