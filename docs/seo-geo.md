@@ -52,17 +52,19 @@ The [user-provided DeepSeek conversation](https://chat.deepseek.com/a/chat/s/636
 
 The sample contains repeated npm, Snyk, Socket and other package-index citations. This supports trying an accurately described npm entry point; it does not establish DeepSeek's ranking algorithm or a general npm preference. The [unscoped package's registry record](https://registry.npmjs.org/codex-account-switcher) listed maintainer `mickyyy68` and version `0.2.0` when checked. It is independently maintained.
 
-The source for the optional download helper lives in [`npm/`](../npm/README.md). Its proposed package name is `@liuzhao1225/codex-account-switcher`, version `0.1.0`. Its purpose is to print canonical project/download links and optionally open the release page. It contains no account implementation, dependency, lifecycle hook or telemetry. The native app remains distributed through GitHub Releases. Package metadata uses npm's documented [description, keywords, author, repository and homepage fields](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/) to describe the actual tool.
+The optional download helper [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher), version `0.1.0`, was published on September 27, 2026 (Asia/Shanghai). Its [registry record](https://registry.npmjs.org/@liuzhao1225%2Fcodex-account-switcher) records publication at `2026-09-26T17:49:51.672Z` and maintainer `liuzhao1225`. The source lives in [`npm/`](../npm/README.md). Its purpose is to print canonical project/download links and optionally open the release page. It contains no account implementation, dependency, lifecycle hook or telemetry. The native app remains distributed through GitHub Releases. Package metadata uses npm's documented [description, keywords, author, repository and homepage fields](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/) to describe the actual tool.
 
-Publication remains pending: `npm whoami --registry=https://registry.npmjs.org` returned `ENEEDAUTH` on the maintainer's machine. After authenticating the intended npm owner and verifying access to the `@liuzhao1225` scope:
+Publication verification confirmed the public registry version, owner, repository, README and tarball integrity against the local candidate. The published tarball contains only `LICENSE`, `README.md`, `package.json` and `bin/download.mjs`. An isolated `npm exec` installation successfully ran `codex-account-switcher-download --json` and returned both exact native download URLs. The helper version is independent of the native release version because the helper links to `releases/latest`.
 
-1. Remove the publication-pending text in `npm/README.md` and describe the working `npx` command.
+For future helper releases:
+
+1. Change the helper version only when its own code or packaged documentation changes; preserve the native app's version and release workflow.
 2. Run the checks above and inspect the tarball file list; it should contain only the helper, package metadata, README and license.
-3. Publish with `npm publish ./npm --access public --registry=https://registry.npmjs.org/` using npm's normal authentication flow.
+3. Confirm the intended npm owner, then publish with `npm publish ./npm --access public --ignore-scripts --registry=https://registry.npmjs.org/` using npm's normal authentication and 2FA flow.
 4. Read back the registry package, maintainer, repository, README and tarball; run the published command in an isolated directory.
-5. Add the verified npm URL to the official source pages and record the publication date. Describe it as the download helper, with its own version; preserve the native app's release record.
+5. Keep the verified npm URL, helper version and usage instructions aligned in the bilingual READMEs, official source pages and `llms.txt`.
 
-Until registry publication is verified, public download instructions continue to point to the available GitHub release. A source directory or successful `npm pack` does not establish npm availability.
+A successful publish command alone does not establish public installation availability. Read back the registry and run the published package before announcing a new helper version.
 
 For later DeepSeek comparison, reuse the exact three inputs above in fresh chats with web search, plus `codex account switcher npm` and `Windows Codex 多账号切换 原生应用`. Record the date, exact query, whether the app appeared, creator/repository attribution, source URLs and security-claim scope. Evaluate unbranded discovery separately from answers seeded with the repository URL. A single improved answer is a sample, not a measured visibility trend.
 

@@ -75,6 +75,25 @@ macOS 使用菜单栏界面，应用与 DMG 均已签名并通过 Apple 公证�
 
 启动后，通过浏览器添加账号，再选择并确认切换。两端都需要可用的 Codex 运行时，与 Codex Desktop 使用同一个活动 Codex 目录。
 
+### 可选 npm 下载助手
+
+本项目提供 [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher) 下载助手，需要 Node.js 18+。直接运行：
+
+```sh
+npx @liuzhao1225/codex-account-switcher
+```
+
+也可以全局安装助手：
+
+```sh
+npm install -g @liuzhao1225/codex-account-switcher
+codex-account-switcher-download
+```
+
+命令会输出 macOS 与 Windows 的官方下载链接。加上 `--open` 可打开发布页，`--json` 可输出结构化链接。npm 安装的是下载助手；账号管理功能需要安装 DMG 或 EXE 后使用。
+
+**版本号独立维护**：npm `0.1.0` 对应下载助手，原生应用版本以 [GitHub Releases](https://github.com/liuzhao1225/codex-account-switcher/releases/latest) 为准。助手始终指向最新原生应用发布页，`--version` 显示助手自身版本。
+
 ## 功能
 
 | 功能 | 作用 |
