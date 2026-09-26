@@ -75,6 +75,25 @@ macOS uses the menu bar; the app and DMG are signed and Apple-notarized. Windows
 
 Launch the app, add accounts through browser sign-in, then select and confirm a switch. Both platforms need an available Codex runtime and must use the same active Codex home as Codex Desktop.
 
+### Optional npm download helper
+
+The project also provides [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher), a download-link helper requiring Node.js 18+. Run it once:
+
+```sh
+npx @liuzhao1225/codex-account-switcher
+```
+
+Or install the helper globally:
+
+```sh
+npm install -g @liuzhao1225/codex-account-switcher
+codex-account-switcher-download
+```
+
+The command prints official macOS and Windows download links. Add `--open` to open the release page or `--json` for machine-readable links. Install the DMG or EXE to use account management; npm installs only this helper.
+
+**Versions are independent:** npm `0.1.0` identifies the helper. The native app's version comes from [GitHub Releases](https://github.com/liuzhao1225/codex-account-switcher/releases/latest). The helper always links to the latest native release, and `--version` reports its own version.
+
 ## Features
 
 | Feature | What it gives you |

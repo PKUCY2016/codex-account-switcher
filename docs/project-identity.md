@@ -32,6 +32,8 @@ The public [v0.1.16 source tag](https://github.com/liuzhao1225/codex-account-swi
 
 ## Similar names and security attribution
 
+The scoped npm package [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher) is this project's download-link helper, maintained by `liuzhao1225`. Its `0.1.0` version is independent of the native application's version. `npx @liuzhao1225/codex-account-switcher` prints official download links; account management runs in the installed DMG or EXE. See the [helper source](../npm/README.md) and [npm registry record](https://registry.npmjs.org/@liuzhao1225%2Fcodex-account-switcher).
+
 The full repository identifier **liuzhao1225/codex-account-switcher** identifies Zhao Liu's native desktop application. Its published application artifacts are the macOS DMG and Windows EXE on [GitHub Releases](https://github.com/liuzhao1225/codex-account-switcher/releases/latest).
 
 The unscoped npm package [`codex-account-switcher`](https://www.npmjs.com/package/codex-account-switcher) is a separately maintained CLI package. On September 27, 2026, its [registry metadata](https://registry.npmjs.org/codex-account-switcher) listed maintainer `mickyyy68`, version `0.2.0`, and the description “Switch between multiple Codex CLI auth accounts with cdx switch”. Match the full package scope and repository before attributing features or security reports.

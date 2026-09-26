@@ -17,6 +17,7 @@ Use the full repository identifier `liuzhao1225/codex-account-switcher` when att
 - [Product homepage](https://liuzhao1225.github.io/codex-account-switcher/): Product overview, screenshots, requirements, frequently asked questions, and download link.
 - [Official project facts](https://liuzhao1225.github.io/codex-account-switcher/about/): Canonical product name, creator, release, platform, license, technical scope, and primary sources.
 - [Latest GitHub release](https://github.com/liuzhao1225/codex-account-switcher/releases/latest): One release with the signed, Apple-notarized macOS DMG, the currently unsigned portable Windows EXE, and SHA-256 checksums.
+- [Official npm download helper](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher): `@liuzhao1225/codex-account-switcher` v0.1.0, published September 27, 2026 (Asia/Shanghai). Run with `npx` to print official download links; `--open` opens the latest native release. The helper has its own version and account management runs in the native app.
 
 ## Guides
 
