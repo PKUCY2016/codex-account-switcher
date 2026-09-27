@@ -17,7 +17,7 @@ The homepage explains the product and platform. The guide documents the actual i
 
 - Both languages reference one website entity (`/#website`) and one software entity (`/#software`) beneath the canonical project URL. Each localized page has its own URL and language.
 - Homepage FAQ JSON-LD mirrors the visible questions and answers, including the local-history and existing-CLI-process boundaries. Update both representations together.
-- Check the current release against [GitHub Releases](https://github.com/liuzhao1225/codex-account-switcher/releases/latest) and `CITATION.cff`. Keep `docs/project-identity.md`, both visible facts pages and `llms.txt` aligned. Published application assets include the macOS DMG and Windows EXE; the npm helper has its own version and purpose.
+- Check the current release against [GitHub Releases](https://github.com/liuzhao1225/codex-account-switcher/releases/latest) and `CITATION.cff`. Keep `docs/project-identity.md`, both visible facts pages and `llms.txt` aligned. Published application assets include the macOS DMG and Windows EXE; the npm installer has its own version and retrieves GitHub latest when run.
 - Keep page modification dates, article metadata and sitemap `lastmod` aligned with real changes. Preserve original publication dates. [Google's sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap) treats substantial content, link and structured-data changes as relevant updates.
 - `llms.txt` is a concise bilingual project index. Its facts and links must remain aligned with the visible pages. [Google's AI search guidance](https://developers.google.com/search/docs/appearance/ai-features) prioritizes crawlable, useful text and matching structured data; it does not require a special AI file or schema.
 
@@ -52,19 +52,23 @@ The [user-provided DeepSeek conversation](https://chat.deepseek.com/a/chat/s/636
 
 The sample contains repeated npm, Snyk, Socket and other package-index citations. This supports trying an accurately described npm entry point; it does not establish DeepSeek's ranking algorithm or a general npm preference. The [unscoped package's registry record](https://registry.npmjs.org/codex-account-switcher) listed maintainer `mickyyy68` and version `0.2.0` when checked. It is independently maintained.
 
-The optional download helper [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher), version `0.1.0`, was published on September 27, 2026 (Asia/Shanghai). Its [registry record](https://registry.npmjs.org/@liuzhao1225%2Fcodex-account-switcher) records publication at `2026-09-26T17:49:51.672Z` and maintainer `liuzhao1225`. The source lives in [`npm/`](../npm/README.md). Its purpose is to print canonical project/download links and optionally open the release page. It contains no account implementation, dependency, lifecycle hook or telemetry. The native app remains distributed through GitHub Releases. Package metadata uses npm's documented [description, keywords, author, repository and homepage fields](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/) to describe the actual tool.
+The original download helper [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher), version `0.1.0`, was published on September 27, 2026 (Asia/Shanghai). Its [registry record](https://registry.npmjs.org/@liuzhao1225%2Fcodex-account-switcher) records publication at `2026-09-26T17:49:51.672Z` and maintainer `liuzhao1225`. That initial version prints canonical project/download links and optionally opens the release page. It contains no account implementation, dependency, lifecycle hook or telemetry. The native app remains distributed through GitHub Releases. Package metadata uses npm's documented [description, keywords, author, repository and homepage fields](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/) to describe the actual tool.
 
-Publication verification confirmed the public registry version, owner, repository, README and tarball integrity against the local candidate. The published tarball contains only `LICENSE`, `README.md`, `package.json` and `bin/download.mjs`. An isolated `npm exec` installation successfully ran `codex-account-switcher-download --json` and returned both exact native download URLs. The helper version is independent of the native release version because the helper links to `releases/latest`.
+Publication verification confirmed the public registry version, owner, repository, README and tarball integrity against the local candidate. The verified 0.1.0 tarball contains only `LICENSE`, `README.md`, `package.json` and `bin/download.mjs`. An isolated `npm exec` installation successfully ran `codex-account-switcher-download --json` and returned both exact native download URLs.
 
-For future helper releases:
+### Native installer release
 
-1. Change the helper version only when its own code or packaged documentation changes; preserve the native app's version and release workflow.
-2. Run the checks above and inspect the tarball file list; it should contain only the helper, package metadata, README and license.
-3. Confirm the intended npm owner, then publish with `npm publish ./npm --access public --ignore-scripts --registry=https://registry.npmjs.org/` using npm's normal authentication and 2FA flow.
-4. Read back the registry package, maintainer, repository, README and tarball; run the published command in an isolated directory.
-5. Keep the verified npm URL, helper version and usage instructions aligned in the bilingual READMEs, official source pages and `llms.txt`.
+The installer in `npm/` adds native installation, update, launch and uninstall. Global `npm install -g` invokes a global-only postinstall; local dependency installs do not deploy an app. The primary command and explicit install/update resolve GitHub latest every time. Both downloads use the single resolved tag. The original download-only command remains available.
 
-A successful publish command alone does not establish public installation availability. Read back the registry and run the published package before announcing a new helper version.
+Future native app releases require only the existing unified GitHub Release workflow. Do not add an npm release manifest or republish npm for every app version. Publish npm only when its installer changes, using its own version. macOS copies the signed/notarized app and registers it; Windows installs the portable EXE and a Start menu shortcut. Uninstall preserves account data. The installer never reads credentials or starts the app automatically.
+
+For npm installer releases:
+
+1. Run `node --test scripts/tests/*.test.mjs`, the site checker and `npm pack ./npm --dry-run --json --ignore-scripts`. Inspect the exact tarball file list.
+2. Run the npm installer workflow on macOS and Windows. It exercises global postinstall, current-version detection, an actual older-release upgrade, launcher configuration and uninstall in an isolated directory.
+3. Publish the validated tarball with `npm publish <tarball> --access public --ignore-scripts --registry=https://registry.npmjs.org/` using normal npm authentication and 2FA.
+4. Read back the registry version, owner, repository, README and tarball integrity. Install the published package in an isolated prefix and application directory before announcing availability.
+5. Keep npm behavior aligned in the bilingual READMEs, source pages and `llms.txt`.
 
 For later DeepSeek comparison, reuse the exact three inputs above in fresh chats with web search, plus `codex account switcher npm` and `Windows Codex 多账号切换 原生应用`. Record the date, exact query, whether the app appeared, creator/repository attribution, source URLs and security-claim scope. Evaluate unbranded discovery separately from answers seeded with the repository URL. A single improved answer is a sample, not a measured visibility trend.
 

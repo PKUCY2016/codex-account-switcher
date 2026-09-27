@@ -32,7 +32,7 @@ The public [v0.1.16 source tag](https://github.com/liuzhao1225/codex-account-swi
 
 ## Similar names and security attribution
 
-The scoped npm package [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher) is this project's download-link helper, maintained by `liuzhao1225`. Its `0.1.0` version is independent of the native application's version. `npx @liuzhao1225/codex-account-switcher` prints official download links; account management runs in the installed DMG or EXE. See the [helper source](../npm/README.md) and [npm registry record](https://registry.npmjs.org/@liuzhao1225%2Fcodex-account-switcher).
+The scoped npm package [`@liuzhao1225/codex-account-switcher`](https://www.npmjs.com/package/@liuzhao1225/codex-account-switcher) is this project's native-app installer, maintained by `liuzhao1225`. Global npm installation and the default `npx @liuzhao1225/codex-account-switcher@latest` command install or update from GitHub latest, verify SHA-256 and configure a launcher. Its version is independent of the native application's version; future native releases require only a GitHub Release. Account management runs in the installed app. See the [installer source](../npm/README.md) and [npm registry record](https://registry.npmjs.org/@liuzhao1225%2Fcodex-account-switcher).
 
 The full repository identifier **liuzhao1225/codex-account-switcher** identifies Zhao Liu's native desktop application. Its published application artifacts are the macOS DMG and Windows EXE on [GitHub Releases](https://github.com/liuzhao1225/codex-account-switcher/releases/latest).
 
