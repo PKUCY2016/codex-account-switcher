@@ -47,7 +47,10 @@ open class AccountController {
 
     public var activeRemainingPercent: Int? {
         guard let activeAccountID else { return nil }
-        return usageStates[activeAccountID]?.displayedUsage?.remainingPercent
+        guard let usage = usageStates[activeAccountID]?.displayedUsage else { return nil }
+        return settings.statusBarUsageWindow == .fiveHour
+            ? (usage.fiveHourRemainingPercent ?? usage.remainingPercent)
+            : usage.remainingPercent
     }
 
     public func start() async {
@@ -299,6 +302,15 @@ open class AccountController {
 
     public func setShowsFiveHourUsage(_ enabled: Bool) async {
         settings.showsFiveHourUsage = enabled
+        do {
+            try await store.saveSettings(settings)
+        } catch {
+            showError(error)
+        }
+    }
+
+    public func setStatusBarUsageWindow(_ window: StatusBarUsageWindow) async {
+        settings.statusBarUsageWindow = window
         do {
             try await store.saveSettings(settings)
         } catch {

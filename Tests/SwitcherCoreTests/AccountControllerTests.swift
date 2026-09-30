@@ -120,10 +120,24 @@ struct AccountControllerTests {
         await fixture.model.setLanguage(.simplifiedChinese)
         await fixture.model.setShowsMenuBarPercentage(false)
         await fixture.model.setShowsFiveHourUsage(true)
+        await fixture.model.setStatusBarUsageWindow(.weekly)
         let saved = try await fixture.store.loadSettings()
         #expect(saved.language == .simplifiedChinese)
         #expect(!saved.showsMenuBarPercentage)
         #expect(saved.showsFiveHourUsage)
+        #expect(saved.statusBarUsageWindow == .weekly)
+    }
+
+    @Test func statusBarUsesSelectedUsageWindow() async throws {
+        let fixture = try ControllerFixture()
+        defer { fixture.clean() }
+        try fixture.writeActiveCredential()
+        await fixture.model.start()
+        fixture.model.refreshWeeklyUsage()
+        await fixture.model.waitForWeeklyUsageRefresh()
+        #expect(fixture.model.activeRemainingPercent == 18)
+        await fixture.model.setStatusBarUsageWindow(.weekly)
+        #expect(fixture.model.activeRemainingPercent == 72)
     }
 
     @Test func activeProfileCannotBeRemoved() async throws {
@@ -180,7 +194,11 @@ private actor FixtureClient: AccountClient {
     }
     func readWeeklyUsage(profileHome: URL) async throws -> WeeklyUsage {
         if usageFails { throw CodexClientError.connectionClosed }
-        return WeeklyUsage(remainingPercent: 72, resetsAt: Date(timeIntervalSince1970: 2_000_000_000))
+        return WeeklyUsage(
+            remainingPercent: 72,
+            resetsAt: Date(timeIntervalSince1970: 2_000_000_000),
+            fiveHourRemainingPercent: 18
+        )
     }
     func login(profileHome: URL) async throws -> AccountIdentity {
         throw CodexClientError.loginFailed("Fixture login is disabled.")

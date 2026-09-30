@@ -6,7 +6,7 @@ private struct Request: Decodable, Sendable {
     let command: String
     var accountID: UUID?
     var value: Bool?
-    var language: AppLanguage?
+    var language: String?
     var version: String?
     var error: String?
 }
@@ -96,7 +96,9 @@ private final class Host {
             guard let id = request.accountID else { throw HostError.message("Missing account ID.") }
             await model.removeAccount(id: id)
         case "language":
-            guard let language = request.language else { throw HostError.message("Missing language.") }
+            guard let raw = request.language, let language = AppLanguage(rawValue: raw) else {
+                throw HostError.message("Invalid language.")
+            }
             await model.setLanguage(language)
         case "percentage":
             guard let value = request.value else { throw HostError.message("Missing setting.") }
@@ -104,6 +106,11 @@ private final class Host {
         case "fiveHour":
             guard let value = request.value else { throw HostError.message("Missing setting.") }
             await model.setShowsFiveHourUsage(value)
+        case "statusBarUsageWindow":
+            guard let raw = request.language, let window = StatusBarUsageWindow(rawValue: raw) else {
+                throw HostError.message("Invalid status bar usage window.")
+            }
+            await model.setStatusBarUsageWindow(window)
         case "dismissError": model.dismissError()
         default: throw HostError.message("Unknown host command.")
         }

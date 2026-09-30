@@ -230,6 +230,10 @@ struct CoreChecks {
             !legacySettings.showsFiveHourUsage,
             "legacy settings hide five-hour usage"
         )
+        try require(
+            legacySettings.statusBarUsageWindow == .fiveHour,
+            "legacy settings default to the five-hour status bar window"
+        )
         let hiddenPercentageSettings = AppSettings(
             language: .simplifiedChinese,
             showsMenuBarPercentage: false,
@@ -316,6 +320,10 @@ struct CoreChecks {
             appModel.usageStates[first.id] == .loaded(cachedWeekly),
             "cached usage is visible at startup"
         )
+        try require(
+            appModel.activeRemainingPercent == 73,
+            "five-hour status bar falls back to weekly-only cached usage"
+        )
         let changesBeforeSettings = modelChangeCount
         await appModel.setShowsFiveHourUsage(false)
         try require(modelChangeCount > changesBeforeSettings, "shared-core settings notify the macOS interface")
@@ -330,7 +338,6 @@ struct CoreChecks {
         )
         await appModel.waitForWeeklyUsageRefresh()
         try require(modelChangeCount > changesBeforeSettings + 1, "shared-core usage refresh notifies the macOS interface")
-        modelObservation.cancel()
         try require(
             appModel.usageStates[first.id]?.displayedUsage?.remainingPercent == 42,
             "refresh replaces displayed cached usage"
@@ -340,9 +347,27 @@ struct CoreChecks {
             "hidden five-hour usage is still normalized"
         )
         try require(
-            appModel.activeRemainingPercent == 42,
-            "menu-bar percentage remains weekly"
+            appModel.activeRemainingPercent == 20,
+            "default status bar shows 100 minus the fixture's five-hour usedPercent of 80"
         )
+        await appModel.setShowsFiveHourUsage(true)
+        try require(
+            appModel.activeRemainingPercent == 20,
+            "account-row five-hour visibility does not change the selected status bar window"
+        )
+        let changesBeforeWindow = modelChangeCount
+        await appModel.setStatusBarUsageWindow(.weekly)
+        try require(modelChangeCount > changesBeforeWindow, "status bar window notifies the macOS interface")
+        try require(
+            appModel.activeRemainingPercent == 42,
+            "weekly status bar shows 100 minus the fixture's weekly usedPercent of 58"
+        )
+        await appModel.setStatusBarUsageWindow(.fiveHour)
+        try require(
+            appModel.activeRemainingPercent == 20,
+            "switching back to five-hour status bar restores its remaining percentage"
+        )
+        modelObservation.cancel()
         let refreshedCache = try await store.loadUsageCache()
         try require(
             refreshedCache.entries.first(where: { $0.profileID == first.id })?.usage.remainingPercent == 42,

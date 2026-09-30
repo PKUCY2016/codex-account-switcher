@@ -146,7 +146,7 @@ Verify:
 - footer contains equal-width Manage Accounts, Settings, and Quit actions;
 - Manage Accounts and Settings navigate inside the popover;
 - reopening after closing a secondary page starts on the account list, or Manage Accounts while sign-in is pending;
-- Settings contains Launch at Login, Show Percentage in Menu Bar, Show 5-hour Usage, and Language in that order;
+- Settings contains Launch at Login, Show Percentage in Menu Bar, Status Bar Usage, Show 5-hour Usage, and Language in that order;
 - Login Item status maps `notRegistered`, `enabled`, `requiresApproval`, and `notFound` to disabled, enabled, approval-required, and unavailable UI states;
 - all three Settings toggles expose localized accessibility labels;
 - switch confirmation describes Desktop and CLI consequences;
@@ -156,7 +156,7 @@ Verify:
 - a short-interval timer test proves that a manual refresh postpones the previous deadline and cancellation stops later rounds;
 - active profile remove button is disabled;
 - disabling Show 5-hour Usage restores the existing weekly row layout;
-- the menu-bar percentage remains weekly when 5-hour display is enabled.
+- the status bar defaults to 5-hour remaining Usage, follows the selected window independently of account-row visibility, and falls back to weekly Usage when 5-hour data is absent.
 
 ## 6. Manual test matrix
 
@@ -174,7 +174,7 @@ With two real test accounts:
 2. add Account B;
 3. open menu and confirm the existing weekly layout for both;
 4. enable Show 5-hour Usage and confirm available 5h and 7d rows, then verify an account without 5-hour data omits only the 5h row;
-5. confirm the menu-bar percentage still matches weekly Usage;
+5. confirm the status bar matches 5-hour remaining Usage by default, switch Status Bar Usage to weekly and verify its weekly value, then confirm an account without 5-hour data uses the weekly value;
 6. start a Codex CLI under A;
 7. switch A → B;
 8. with an active local chat, leave Desktop's native quit dialog pending and confirm a close-stage error after 30 seconds, with account A still active and Desktop still running; then finish or stop the task and close Desktop normally;

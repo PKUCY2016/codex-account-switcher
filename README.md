@@ -104,7 +104,7 @@ Run `codex-account-switcher update` to update, `open` to launch, or `uninstall` 
 | **Native account controls** | Use the macOS menu bar or a Windows window with a system-tray entry point. |
 | **Completed Desktop handoff** | Select and confirm an account, then let the app close, switch, verify, and reopen Codex Desktop. |
 | **Local account storage** | Keep saved account data on your computer without an app-owned proxy or cloud account service. |
-| **Usage at a glance** | Check weekly allowance by default, or enable the exact 300-minute (5-hour) service window and reset time in Settings. The optional row is off by default. |
+| **Usage at a glance** | Check weekly allowance in account rows by default, or enable the exact 300-minute (5-hour) service window and reset time in Settings. The optional row is off by default. Choose whether the menu bar or Windows tray shows the 5-hour or weekly remaining percentage; it defaults to 5-hour usage. |
 | **Native apps on both platforms** | SwiftUI on macOS and WPF on Windows, with English and Simplified Chinese interfaces. |
 
 ## How it works

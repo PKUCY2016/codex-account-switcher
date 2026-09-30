@@ -133,9 +133,10 @@ Settings contains:
 - `Launch at Login`: register or unregister the main app through macOS Service Management;
 - `Show Percentage in Menu Bar`: show or hide the active account's remaining percentage;
 - `Show 5-hour Usage`: show or hide the optional 5-hour line in account rows;
+- `Status Bar Usage Window`: choose the 5-hour or weekly remaining percentage shown in the menu bar or Windows tray;
 - `Language`: `System Default`, `English`, `简体中文`.
 
-`Show 5-hour Usage` defaults to off and persists immediately in `settings.json`. It affects account rows only. The menu-bar percentage remains the active account's weekly percentage.
+`Show 5-hour Usage` defaults to off and affects account rows only. The status bar defaults to the active account's 5-hour remaining percentage and falls back to weekly when 5-hour data is unavailable. Both settings persist immediately in `settings.json`.
 
 The launch-at-login control reads the current macOS Login Item status directly. It does not duplicate that state in `settings.json`. A registered item that requires approval shows a direct link to the Login Items section in System Settings.
 

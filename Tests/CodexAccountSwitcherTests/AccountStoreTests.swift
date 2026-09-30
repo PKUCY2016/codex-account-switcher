@@ -361,11 +361,13 @@ struct AccountStoreTests {
         #expect(legacySettings.showsMenuBarPercentage)
         #expect(!legacySettings.showsFiveHourUsage)
         #expect(!AppSettings.default.showsFiveHourUsage)
+        #expect(legacySettings.statusBarUsageWindow == .fiveHour)
 
         let updatedSettings = AppSettings(
             language: .simplifiedChinese,
             showsMenuBarPercentage: false,
-            showsFiveHourUsage: true
+            showsFiveHourUsage: true,
+            statusBarUsageWindow: .weekly
         )
         try await fixture.store.saveSettings(updatedSettings)
         let reloadedStore = AccountStore(

@@ -228,6 +228,13 @@ public sealed class MainWindow : Window
         }
         Toggle(T("launch_at_login"), native.LaunchAtLogin, value => native.LaunchAtLogin = value);
         Toggle(T("show_menu_bar_percentage").Replace("菜单栏", "托盘").Replace("Menu Bar", "System Tray"), State.Settings.ShowsMenuBarPercentage, value => _ = Run("percentage", value: value));
+        var usageWindows = new[] { "fiveHour", "weekly" };
+        var usageWindow = new ComboBox { Width = 160, VerticalAlignment = VerticalAlignment.Center,
+            ItemsSource = new[] { T("five_hour"), T("weekly") },
+            SelectedIndex = State.Settings.StatusBarUsageWindow == "fiveHour" ? 0 : 1 };
+        usageWindow.SelectionChanged += (_, _) => { if (usageWindow.SelectedIndex >= 0) _ = Run("statusBarUsageWindow", language: usageWindows[usageWindow.SelectedIndex]); };
+        var usageWindowRow = Pair(Text(T("status_bar_usage_window")), usageWindow);
+        usageWindowRow.Height = 48; settings.Children.Add(usageWindowRow);
         Toggle(T("show_five_hour_usage"), State.Settings.ShowsFiveHourUsage, value => _ = Run("fiveHour", value: value));
         var languages = new[] { "system", "english", "simplifiedChinese" };
         var language = new ComboBox { Width = 160, VerticalAlignment = VerticalAlignment.Center, ItemsSource = new[] { T("system_default"), T("english"), T("simplified_chinese") }, SelectedIndex = Array.IndexOf(languages, State.Settings.Language) };
