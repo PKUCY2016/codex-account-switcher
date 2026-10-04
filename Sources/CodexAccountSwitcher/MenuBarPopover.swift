@@ -48,7 +48,7 @@ struct MenuBarPopover: View {
                 }
             }
         }
-        .frame(width: 326)
+        .frame(width: 400)
         .onAppear {
             page = model.isAddingAccount ? .manageAccounts : .accounts
         }
@@ -81,7 +81,7 @@ struct MenuBarPopover: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 28)
             } else {
-                VStack(spacing: 2) {
+                VStack(spacing: 8) {
                     ForEach(model.accounts) { account in
                         Button {
                             if account.id == model.activeAccountID {
@@ -93,6 +93,7 @@ struct MenuBarPopover: View {
                             AccountRow(
                                 account: account,
                                 usageState: model.usageStates[account.id] ?? .idle,
+                                subscription: model.subscriptionSnapshots[account.id],
                                 isActive: account.id == model.activeAccountID,
                                 language: model.settings.language,
                                 showsFiveHourUsage: model.settings.showsFiveHourUsage
@@ -102,7 +103,7 @@ struct MenuBarPopover: View {
                         .disabled(model.isMutating || updater.isInstalling)
                     }
                 }
-                .padding(5)
+                .padding(8)
             }
 
             if let version = updater.availableVersion {

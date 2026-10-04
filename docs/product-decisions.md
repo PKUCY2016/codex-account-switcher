@@ -13,7 +13,7 @@ The September 5 update adds one explicit maintenance job: keep Switcher current 
 
 ## 2. Main menu
 
-The popover uses a compact 326-point content width. Account rows keep the density and visual hierarchy of the accepted HTML prototype.
+The popover uses a 400-point content width so the reset count and saved subscription date fit without crowding adjacent account rows.
 
 With the default settings, each saved account row shows:
 
@@ -22,7 +22,9 @@ With the default settings, each saved account row shows:
 - `Resets …` on the same line as the name;
 - the label `Usage`;
 - one progress bar;
-- one `NN% left` value.
+- one `NN% left` value;
+- the rate-limit reset count when available, or `Unknown`;
+- a labeled subscription active-until date from the saved login snapshot, or `Unknown`.
 
 When `Show 5-hour Usage` is enabled and an exact five-hour window is available, the row expands to separate `5h` and `7d` lines. Each line contains its own progress bar, remaining percentage, and reset time. If the 5-hour window is missing, the row shows only `7d` and does not show an unavailable placeholder.
 

@@ -4,6 +4,7 @@ import SwiftUI
 struct AccountRow: View {
     let account: AccountProfile
     let usageState: UsageViewState
+    let subscription: SubscriptionSnapshot?
     let isActive: Bool
     let language: AppLanguage
     let showsFiveHourUsage: Bool
@@ -44,11 +45,23 @@ struct AccountRow: View {
                 }
 
                 usageContent
+                if let usage = usageState.displayedUsage {
+                    Text(resetCreditsText(for: usage))
+                        .font(.system(size: 10.5).monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                Text(subscriptionText)
+                    .font(.system(size: 10.5).monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.9)
+                    .help(subscriptionDetail)
             }
+            .fixedSize(horizontal: false, vertical: true)
         }
         .frame(minHeight: 50)
         .padding(.horizontal, 8)
-        .padding(.vertical, 7)
+        .padding(.vertical, 10)
         .contentShape(Rectangle())
         .background(
             rowBackground,
@@ -166,10 +179,51 @@ struct AccountRow: View {
         resetText(for: usage.resetsAt, includesDate: true)
     }
 
+    private func resetCreditsText(for usage: WeeklyUsage) -> String {
+        let count = usage.resetCreditsRemaining.map(String.init)
+            ?? L10n.string("unknown", language: language)
+        return "\(L10n.string("reset_credits", language: language)): \(count)"
+    }
+
+    private var dateLocale: Locale {
+        switch language {
+        case .simplifiedChinese:
+            Locale(identifier: "zh_CN")
+        case .english:
+            Locale(identifier: "en_US")
+        case .system:
+            Locale.preferredLanguages.first?.hasPrefix("zh") == true
+                ? Locale(identifier: "zh_CN") : .autoupdatingCurrent
+        }
+    }
+
+    private var subscriptionText: String {
+        guard let subscription else {
+            return L10n.string("subscription_unknown", language: language)
+        }
+        let date = subscription.activeUntil.formatted(
+            .dateTime.year().month(.abbreviated).day().locale(dateLocale)
+        )
+        let marker = subscription.activeUntil > .now
+            ? L10n.string("subscription_snapshot", language: language)
+            : L10n.string("subscription_old_snapshot", language: language)
+        return "\(L10n.string("subscription_until", language: language)) \(date) (\(marker))"
+    }
+
+    private var subscriptionDetail: String {
+        guard let subscription else {
+            return L10n.string("subscription_unknown", language: language)
+        }
+        let checked = subscription.lastChecked.formatted(
+            .dateTime.year().month().day().hour().minute().locale(dateLocale)
+        )
+        return String(format: L10n.string("subscription_detail", language: language), checked)
+    }
+
     private func resetText(for resetsAt: Date, includesDate: Bool) -> String {
         let date = includesDate
-            ? resetsAt.formatted(.dateTime.month(.abbreviated).day().hour().minute())
-            : resetsAt.formatted(.dateTime.hour().minute())
+            ? resetsAt.formatted(.dateTime.month(.abbreviated).day().hour().minute().locale(dateLocale))
+            : resetsAt.formatted(.dateTime.hour().minute().locale(dateLocale))
         return "\(L10n.string("resets", language: language)) \(date)"
     }
 }

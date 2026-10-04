@@ -105,6 +105,7 @@ Run `codex-account-switcher update` to update, `open` to launch, or `uninstall` 
 | **Completed Desktop handoff** | Select and confirm an account, then let the app close, switch, verify, and reopen Codex Desktop. |
 | **Local account storage** | Keep saved account data on your computer without an app-owned proxy or cloud account service. |
 | **Usage at a glance** | Check weekly allowance in account rows by default, or enable the exact 300-minute (5-hour) service window and reset time in Settings. The optional row is off by default. Choose whether the menu bar or Windows tray shows the 5-hour or weekly remaining percentage; it defaults to 5-hour usage. |
+| **Reset count and plan date** | See the available rate-limit reset count when the service reports it. Account rows also show the subscription active-until date saved with each login, labeled as a dated snapshot. Missing values remain unknown. |
 | **Native apps on both platforms** | SwiftUI on macOS and WPF on Windows, with English and Simplified Chinese interfaces. |
 
 ## How it works
@@ -133,6 +134,7 @@ Comparisons with other account switchers are welcome. Please describe the workfl
 - The project is independent open-source software and is not affiliated with or endorsed by OpenAI.
 - The current account appears through a row highlight inside the popover.
 - Persisted 5-hour and weekly usage remains visible while fresh data loads; the 5-hour row appears only when enabled and the service provides an exact 300-minute window.
+- Reset counts come from the usage response. Subscription dates come from saved login credentials and are not live billing or renewal confirmations; the row tooltip gives the snapshot check time.
 - Every switch stops immediately on the first reported error.
 - If target verification or the registry commit fails after credential activation, the app restores the just-saved original profile credential while preserving the original error. A restoration error is reported alongside it.
 - General rollback state machines, retries, credential backup files, recovery journals, startup recovery, and policy-based routing stay outside the product scope.

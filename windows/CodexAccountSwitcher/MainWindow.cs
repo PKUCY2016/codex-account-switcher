@@ -150,8 +150,16 @@ public sealed class MainWindow : Window
                         details.Children.Add(UsageLine(T("five_hour"), five, Reset(time, false)));
                     details.Children.Add(UsageLine(T(State.Settings.ShowsFiveHourUsage ? "weekly" : "usage"), usage.RemainingPercent,
                         State.Settings.ShowsFiveHourUsage ? Reset(usage.ResetsAt) : null));
+                    details.Children.Add(Text(T("reset_credits") + ": " + (usage.ResetCreditsRemaining?.ToString(CultureInfo.CurrentCulture) ?? T("unknown")), 10.5, muted: true));
                     details.ToolTip = row.UsageError;
                 } else { var missing = Text(row.UsageStatus == "idle" ? T("usage") + " —" : T("usage_unavailable"), 10.5, muted: true); missing.ToolTip = row.UsageError; details.Children.Add(missing); }
+                if (row.Subscription is { } subscription) {
+                    var date = subscription.ActiveUntil.ToLocalTime().ToString("yyyy MMM d", CultureInfo.CurrentCulture);
+                    var marker = subscription.ActiveUntil > DateTimeOffset.UtcNow ? T("subscription_snapshot") : T("subscription_old_snapshot");
+                    var line = Text(T("subscription_until") + " " + date + " (" + marker + ")", 10.5, muted: true);
+                    line.ToolTip = T("subscription_detail").Replace("%@", subscription.LastChecked.ToLocalTime().ToString("yyyy MMM d HH:mm", CultureInfo.CurrentCulture));
+                    details.Children.Add(line);
+                } else details.Children.Add(Text(T("subscription_unknown"), 10.5, muted: true));
             }
             var grid = new Grid { MinHeight = manage ? 32 : 50 };
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(44) }); grid.ColumnDefinitions.Add(new ColumnDefinition());
