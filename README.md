@@ -105,6 +105,7 @@ Run `codex-account-switcher update` to update, `open` to launch, or `uninstall` 
 | **Completed Desktop handoff** | Select and confirm an account, then let the app close, switch, verify, and reopen Codex Desktop. |
 | **Local account storage** | Keep saved account data on your computer without an app-owned proxy or cloud account service. |
 | **Usage at a glance** | Check weekly allowance in account rows by default, or enable the exact 300-minute (5-hour) service window and reset time in Settings. The optional row is off by default. Choose whether the menu bar or Windows tray shows the 5-hour or weekly remaining percentage; it defaults to 5-hour usage. |
+| **Tibo reset outlook (macOS)** | Show the independent site's experimental 24/48-hour estimate, a Beijing-time historical interval based on confirmed posts, and links to the original posts. Tibo's 28-day announcement appears separately as a conditional plan: each day brings an improvement or a full reset, not a guaranteed daily reset. Data comes from [codex-reset.com](https://codex-reset.com/); it is not an OpenAI reset schedule or proof that a reset reached your account. |
 | **Native apps on both platforms** | SwiftUI on macOS and WPF on Windows, with English and Simplified Chinese interfaces. |
 
 ## How it works
@@ -124,6 +125,7 @@ Comparisons with other account switchers are welcome. Please describe the workfl
 ## Privacy and scope
 
 - Saved account data stays in user-only local directories on your computer.
+- The macOS Tibo outlook makes periodic public GET requests to codex-reset.com while the app runs. It sends no saved account details or credentials. If the public data is missing, stale, or inconsistent, the forecast appears unavailable.
 - Each saved profile contains a complete, reusable `auth.json` credential snapshot. macOS uses mode `0700` for profile directories and `0600` for credentials; Windows uses current-user ACLs. Both platforms replace credential files atomically.
 - Local file permissions define the current security boundary. User backups, filesystem snapshots, cloud backup tools, endpoint software, and other processes with access to the user's files may copy the saved credential snapshots.
 - Removing an account performs ordinary filesystem deletion. The app makes no secure-erasure guarantee for SSD storage, APFS snapshots, or backups.

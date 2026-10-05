@@ -5,6 +5,7 @@ import SwiftUI
 struct MenuBarPopover: View {
     @ObservedObject var model: AppModel
     @ObservedObject var updater: AppUpdater
+    @ObservedObject var tiboForecast: TiboForecastModel
     @State private var page: PopoverPage = .accounts
 
     var body: some View {
@@ -32,6 +33,10 @@ struct MenuBarPopover: View {
                     SettingsView(model: model, updater: updater) {
                         page = .accounts
                     }
+                case .tiboForecast:
+                    TiboForecastView(model: model, forecastModel: tiboForecast) {
+                        page = .accounts
+                    }
                 case let .confirmSwitch(account):
                     SwitchConfirmationPage(
                         model: model,
@@ -48,14 +53,20 @@ struct MenuBarPopover: View {
                 }
             }
         }
-        .frame(width: 326)
+        .frame(width: popoverWidth)
         .onAppear {
             page = model.isAddingAccount ? .manageAccounts : .accounts
         }
         .task {
             await model.start()
             model.refreshWeeklyUsage()
+            await tiboForecast.refreshIfDue()
         }
+    }
+
+    private var popoverWidth: CGFloat {
+        if case .tiboForecast = page { return 400 }
+        return 326
     }
 
     private var accountPage: some View {
@@ -103,6 +114,11 @@ struct MenuBarPopover: View {
                     }
                 }
                 .padding(5)
+            }
+
+            Divider()
+            TiboForecastEntry(model: model, forecastModel: tiboForecast) {
+                page = .tiboForecast
             }
 
             if let version = updater.availableVersion {
@@ -159,6 +175,7 @@ private enum PopoverPage {
     case accounts
     case manageAccounts
     case settings
+    case tiboForecast
     case confirmSwitch(AccountProfile)
 }
 
