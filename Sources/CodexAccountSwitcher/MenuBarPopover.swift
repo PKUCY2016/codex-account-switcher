@@ -33,10 +33,6 @@ struct MenuBarPopover: View {
                     SettingsView(model: model, updater: updater) {
                         page = .accounts
                     }
-                case .tiboForecast:
-                    TiboForecastView(model: model, forecastModel: tiboForecast) {
-                        page = .accounts
-                    }
                 case let .confirmSwitch(account):
                     SwitchConfirmationPage(
                         model: model,
@@ -53,7 +49,7 @@ struct MenuBarPopover: View {
                 }
             }
         }
-        .frame(width: popoverWidth)
+        .frame(width: 326)
         .onAppear {
             page = model.isAddingAccount ? .manageAccounts : .accounts
         }
@@ -62,11 +58,6 @@ struct MenuBarPopover: View {
             model.refreshWeeklyUsage()
             await tiboForecast.refreshIfDue()
         }
-    }
-
-    private var popoverWidth: CGFloat {
-        if case .tiboForecast = page { return 400 }
-        return 326
     }
 
     private var accountPage: some View {
@@ -117,9 +108,7 @@ struct MenuBarPopover: View {
             }
 
             Divider()
-            TiboForecastEntry(model: model, forecastModel: tiboForecast) {
-                page = .tiboForecast
-            }
+            TiboForecastEntry(model: model, forecastModel: tiboForecast)
 
             if let version = updater.availableVersion {
                 Divider()
@@ -175,7 +164,6 @@ private enum PopoverPage {
     case accounts
     case manageAccounts
     case settings
-    case tiboForecast
     case confirmSwitch(AccountProfile)
 }
 
