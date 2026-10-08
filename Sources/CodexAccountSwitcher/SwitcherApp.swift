@@ -6,10 +6,11 @@ import SwiftUI
 struct SwitcherApp: App {
     @StateObject private var model = AppModel.live()
     @StateObject private var updater = AppUpdater()
+    @StateObject private var tiboForecast = TiboForecastModel()
 
     var body: some Scene {
         MenuBarExtra {
-            MenuBarPopover(model: model, updater: updater)
+            MenuBarPopover(model: model, updater: updater, tiboForecast: tiboForecast)
         } label: {
             HStack(spacing: 4) {
                 MenuBarLogo()
@@ -29,6 +30,7 @@ struct SwitcherApp: App {
                 .accessibilityLabel(menuBarAccessibilityLabel)
                 .task {
                     updater.start()
+                    tiboForecast.start()
                     await model.startBackgroundUsageRefresh()
                 }
                 .onChange(of: model.isMutating || model.isAddingAccount) { _, busy in
