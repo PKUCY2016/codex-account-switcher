@@ -7,12 +7,19 @@ struct TiboForecastEntry: View {
 
     var body: some View {
         Link(destination: URL(string: "https://codex-reset.com/")!) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Image(systemName: "clock.arrow.circlepath")
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
                     .accessibilityHidden(true)
+                Text(model.text("tibo_title"))
+                    .font(.system(size: 10.5, weight: .medium))
+                    .fixedSize()
                 probability(model.text("tibo_24h"), forecastModel.forecast?.next24HourPercent)
                 probability(model.text("tibo_48h"), forecastModel.forecast?.next48HourPercent)
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -28,16 +35,17 @@ struct TiboForecastEntry: View {
     }
 
     private func probability(_ label: String, _ value: Int?) -> some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 4) {
             Text(label)
-                .font(.system(size: 10.5))
+                .font(.system(size: 10))
                 .foregroundStyle(.secondary)
-            Spacer(minLength: 0)
+                .fixedSize()
             Text(value.map { "\($0)%" } ?? (forecastModel.isLoading ? "…" : "—"))
-                .font(.system(size: 13, weight: .semibold).monospacedDigit())
+                .font(.system(size: 11.5, weight: .semibold).monospacedDigit())
+                .fixedSize()
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 6)
         .padding(.vertical, 6)
         .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 7))
     }
