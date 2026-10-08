@@ -5,6 +5,7 @@ import SwiftUI
 struct MenuBarPopover: View {
     @ObservedObject var model: AppModel
     @ObservedObject var updater: AppUpdater
+    @ObservedObject var tiboForecast: TiboForecastModel
     @State private var page: PopoverPage = .accounts
 
     var body: some View {
@@ -55,6 +56,7 @@ struct MenuBarPopover: View {
         .task {
             await model.start()
             model.refreshWeeklyUsage()
+            await tiboForecast.refreshIfDue()
         }
     }
 
@@ -104,6 +106,9 @@ struct MenuBarPopover: View {
                 }
                 .padding(5)
             }
+
+            Divider()
+            TiboForecastEntry(model: model, forecastModel: tiboForecast)
 
             if let version = updater.availableVersion {
                 Divider()
