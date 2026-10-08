@@ -15,6 +15,8 @@ The September 5 update adds one explicit maintenance job: keep Switcher current 
 
 The popover uses a 400-point content width so the reset count and saved subscription date fit without crowding adjacent account rows.
 
+The account list grows with its content up to three quarters of the current screen's usable height, then scrolls. Footer actions remain outside the scrolling list.
+
 With the default settings, each saved account row shows:
 
 - avatar or initials;
@@ -23,8 +25,7 @@ With the default settings, each saved account row shows:
 - the label `Usage`;
 - one progress bar;
 - one `NN% left` value;
-- the rate-limit reset count when available, or `Unknown`;
-- a labeled subscription active-until date from the saved login snapshot, or `Unknown`.
+- one detail line with the saved subscription active-until date on the left and available rate-limit reset count on the right. Dates use `YYYY-MM-DD`; missing values show `Unknown`. The date tooltip explains the login-snapshot source and check time.
 
 When `Show 5-hour Usage` is enabled and an exact five-hour window is available, the row expands to separate `5h` and `7d` lines. Each line contains its own progress bar, remaining percentage, and reset time. If the 5-hour window is missing, the row shows only `7d` and does not show an unavailable placeholder.
 

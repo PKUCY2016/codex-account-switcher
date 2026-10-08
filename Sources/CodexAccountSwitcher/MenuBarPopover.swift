@@ -81,29 +81,34 @@ struct MenuBarPopover: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 28)
             } else {
-                VStack(spacing: 8) {
-                    ForEach(model.accounts) { account in
-                        Button {
-                            if account.id == model.activeAccountID {
-                                NSApp.keyWindow?.close()
-                            } else {
-                                page = .confirmSwitch(account)
+                ScrollView {
+                    VStack(spacing: 8) {
+                        ForEach(model.accounts) { account in
+                            Button {
+                                if account.id == model.activeAccountID {
+                                    NSApp.keyWindow?.close()
+                                } else {
+                                    page = .confirmSwitch(account)
+                                }
+                            } label: {
+                                AccountRow(
+                                    account: account,
+                                    usageState: model.usageStates[account.id] ?? .idle,
+                                    subscription: model.subscriptionSnapshots[account.id],
+                                    isActive: account.id == model.activeAccountID,
+                                    language: model.settings.language,
+                                    showsFiveHourUsage: model.settings.showsFiveHourUsage
+                                )
                             }
-                        } label: {
-                            AccountRow(
-                                account: account,
-                                usageState: model.usageStates[account.id] ?? .idle,
-                                subscription: model.subscriptionSnapshots[account.id],
-                                isActive: account.id == model.activeAccountID,
-                                language: model.settings.language,
-                                showsFiveHourUsage: model.settings.showsFiveHourUsage
-                            )
+                            .buttonStyle(.plain)
+                            .disabled(model.isMutating || updater.isInstalling)
                         }
-                        .buttonStyle(.plain)
-                        .disabled(model.isMutating || updater.isInstalling)
                     }
+                    .padding(8)
                 }
-                .padding(8)
+                .fixedSize(horizontal: false, vertical: true)
+                // Leave room for the footer, update notice, and error messages.
+                .frame(maxHeight: NSScreen.main.map { $0.visibleFrame.height * 0.75 })
             }
 
             if let version = updater.availableVersion {

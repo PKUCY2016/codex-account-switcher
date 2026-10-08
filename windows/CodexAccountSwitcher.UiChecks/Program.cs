@@ -82,9 +82,9 @@ internal static class Program
             Assert(!All<TextBlock>(window).Any(text => text.Text == "当前"), "Home uses selection color, not active labels.");
             Assert(All<TextBlock>(window).Any(text => text.Text == "重置次数: 2"), "Home shows the reported reset count beneath usage.");
             Assert(All<TextBlock>(window).Any(text => text.Text == "重置次数: 未知"), "Missing reset count must not be shown as zero.");
-            Assert(All<TextBlock>(window).Any(text => text.Text.StartsWith("会员有效至 ") && text.Text.Contains("登录快照") && text.ToolTip is string),
-                "Home labels the saved subscription date and exposes its check time.");
-            Assert(All<TextBlock>(window).Any(text => text.Text == "会员有效期：未知"), "Missing subscription date stays unknown.");
+            Assert(All<TextBlock>(window).Any(text => text.Text == "有效期：2099-10-17" && text.ToolTip is string),
+                "Home shows the subscription date without a parenthetical label and exposes its check time on hover.");
+            Assert(All<TextBlock>(window).Any(text => text.Text == "有效期：未知"), "Missing subscription date stays unknown.");
             var target = All<Button>(window).Single(button => button.Content is Grid && System.Windows.Automation.AutomationProperties.GetName(button) == "studio@example.test");
             target.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             Assert(window.CurrentPage == "switch", "Selecting a row must open an in-place confirmation.");
@@ -167,8 +167,8 @@ internal static class Program
                 new(new(Guid.Parse("22222222-2222-2222-2222-222222222222"), "Studio", "studio@example.test"), "S", new(56, time.AddHours(1), 68, time.AddHours(-1)), null)
             ], id, new("simplifiedChinese"), false, false, true, null, new() {
                 ["usage"] = "用量", ["resets"] = "重置于", ["reset_credits"] = "重置次数", ["unknown"] = "未知", ["left"] = "% 剩余", ["manage"] = "管理账号", ["settings"] = "设置", ["quit"] = "退出应用",
-                ["subscription_until"] = "会员有效至", ["subscription_snapshot"] = "登录快照", ["subscription_old_snapshot"] = "旧登录快照",
-                ["subscription_unknown"] = "会员有效期：未知", ["subscription_detail"] = "最近核验于 %@。",
+                ["subscription_until"] = "有效期：%@", ["subscription_snapshot"] = "登录快照", ["subscription_old_snapshot"] = "旧登录快照",
+                ["subscription_unknown"] = "有效期：未知", ["subscription_detail"] = "最近核验于 %@。",
                 ["accounts"] = "账号", ["back"] = "返回", ["active"] = "当前", ["remove"] = "移除", ["add_account"] = "添加账号",
                 ["sign_in_hint"] = "将打开浏览器进行 Codex 登录。", ["register_current_account"] = "登记当前登录账号",
                 ["settings_general"] = "通用", ["settings_updates"] = "软件更新", ["launch_at_login"] = "登录时自动启动",

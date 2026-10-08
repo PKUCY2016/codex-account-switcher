@@ -45,17 +45,19 @@ struct AccountRow: View {
                 }
 
                 usageContent
-                if let usage = usageState.displayedUsage {
-                    Text(resetCreditsText(for: usage))
-                        .font(.system(size: 10.5).monospacedDigit())
-                        .foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    Text(subscriptionText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.9)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .help(subscriptionDetail)
+                    if let usage = usageState.displayedUsage {
+                        Text(resetCreditsText(for: usage))
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
                 }
-                Text(subscriptionText)
                     .font(.system(size: 10.5).monospacedDigit())
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.9)
-                    .help(subscriptionDetail)
             }
             .fixedSize(horizontal: false, vertical: true)
         }
@@ -201,13 +203,12 @@ struct AccountRow: View {
         guard let subscription else {
             return L10n.string("subscription_unknown", language: language)
         }
-        let date = subscription.activeUntil.formatted(
-            .dateTime.year().month(.abbreviated).day().locale(dateLocale)
-        )
-        let marker = subscription.activeUntil > .now
-            ? L10n.string("subscription_snapshot", language: language)
-            : L10n.string("subscription_old_snapshot", language: language)
-        return "\(L10n.string("subscription_until", language: language)) \(date) (\(marker))"
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return String(format: L10n.string("subscription_until", language: language),
+                      formatter.string(from: subscription.activeUntil))
     }
 
     private var subscriptionDetail: String {
